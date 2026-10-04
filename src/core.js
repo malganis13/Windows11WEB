@@ -117,30 +117,37 @@ const Bus={h:{},on(e,f){(this.h[e]=this.h[e]||[]).push(f)},emit(e,...a){(this.h[
 /* ============================ SOUND ENGINE ============================ */
 class SoundEngine{
  constructor(){this.ctx=null;}
- ensure(){if(!this.ctx){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;this.ctx=new C();this.master=this.ctx.createGain();this.master.connect(this.ctx.destination);
-  // simple feedback-delay reverb
-  this.delay=this.ctx.createDelay();this.delay.delayTime.value=.18;this.fb=this.ctx.createGain();this.fb.gain.value=.32;this.wet=this.ctx.createGain();this.wet.gain.value=.35;
-  const lp=this.ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2600;this.delay.connect(lp);lp.connect(this.fb);this.fb.connect(this.delay);lp.connect(this.wet);this.wet.connect(this.master);}
-  if(this.ctx.state==='suspended')this.ctx.resume();this.master.gain.value=Settings.get('volume')/100;return this.ctx;}
- tone(freq,start,dur,{type='sine',gain=.2,attack=.01,rev=true,slide=0}={}){const c=this.ensure();if(!c||!Settings.get('sounds')||Settings.get('volume')==0)return;
-  const t=c.currentTime+start,o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+dur);
-  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(gain,t+attack);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(this.master);if(rev)g.connect(this.delay);o.start(t);o.stop(t+dur+.05);}
- startup(){[[523.25,0],[659.25,.13],[783.99,.26],[987.77,.4],[1318.5,.58]].forEach(([f,s],i)=>{this.tone(f,s,2.2-i*.15,{gain:.13,attack:.03});this.tone(f/2,s,1.6,{type:'triangle',gain:.05,attack:.05});});this.tone(1975.5,.78,1.4,{gain:.05,attack:.05});}
- click(){this.tone(1500,0,.04,{gain:.04,rev:false,attack:.002});}
- pop(){this.tone(700,0,.09,{gain:.07,rev:false,slide:1100});}
- error(){this.tone(440,0,.25,{type:'triangle',gain:.18});this.tone(330,.14,.4,{type:'triangle',gain:.18});}
- notify(){this.tone(880,0,.5,{gain:.12});this.tone(1318.5,.12,.7,{gain:.1});}
- shutdown(){[[1318.5,0],[987.77,.15],[783.99,.3],[523.25,.48]].forEach(([f,s])=>this.tone(f,s,1.4,{gain:.12,attack:.03}));}
- mine(){this.tone(160,0,.6,{type:'sawtooth',gain:.12,slide:40});}
- win(){[523,659,784,1046,1318].forEach((f,i)=>this.tone(f,i*.09,.5,{gain:.1}));}
+ ensure(){if(!this.ctx){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;const c=this.ctx=new C();
+  this.master=c.createGain();const comp=c.createDynamicsCompressor();comp.threshold.value=-18;comp.ratio.value=3;this.master.connect(comp);comp.connect(c.destination);
+  this.rev=c.createConvolver();this.rev.buffer=this.impulse(2.6,2.8);this.wet=c.createGain();this.wet.gain.value=.42;this.rev.connect(this.wet);this.wet.connect(this.master);this.delay=this.rev;}
+  if(this.ctx.state==='suspended')this.ctx.resume();this.master.gain.value=Settings.get('volume')/100*.9;return this.ctx;}
+ impulse(sec,decay){const c=this.ctx,n=c.sampleRate*sec|0,b=c.createBuffer(2,n,c.sampleRate);for(let ch=0;ch<2;ch++){const d=b.getChannelData(ch);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,decay);}return b;}
+ ok(){const c=this.ensure();return c&&Settings.get('sounds')&&Settings.get('volume')>0?c:null;}
+ tone(freq,start,dur,{type='sine',gain=.2,attack=.01,rev=true,slide=0}={}){const c=this.ok();if(!c)return;const t=c.currentTime+start,o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+dur);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(gain,t+attack);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(this.master);if(rev)g.connect(this.rev);o.start(t);o.stop(t+dur+.05);}
+ mallet(f,start,{gain=.18,dur=1.2,rev=.6,bright=1}={}){const c=this.ok();if(!c)return;const t=c.currentTime+start;const out=c.createGain();const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=Math.min(12000,f*6*bright);lp.Q.value=.3;out.connect(lp);lp.connect(this.master);const rs=c.createGain();rs.gain.value=rev;lp.connect(rs);rs.connect(this.rev);
+  [[1,1,dur],[3.99,.16*bright,dur*.25],[10.1,.04*bright,dur*.08]].forEach(([r,a,d])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=f*r;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(gain*a,t+.005);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(out);o.start(t);o.stop(t+d+.05);});}
+ pad(fs,start,dur,{gain=.05,attack=.6}={}){const c=this.ok();if(!c)return;const t=c.currentTime+start;const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.setValueAtTime(400,t);lp.frequency.linearRampToValueAtTime(2000,t+attack+.3);lp.frequency.exponentialRampToValueAtTime(500,t+dur);const g=c.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(gain,t+attack);g.gain.exponentialRampToValueAtTime(.0001,t+dur);lp.connect(g);g.connect(this.master);const rs=c.createGain();rs.gain.value=.8;g.connect(rs);rs.connect(this.rev);
+  fs.forEach(f=>[-7,7].forEach(dt=>{const o=c.createOscillator();o.type='sawtooth';o.frequency.value=f;o.detune.value=dt;const og=c.createGain();og.gain.value=1/fs.length;o.connect(og);og.connect(lp);o.start(t);o.stop(t+dur+.1);}));}
+ noise(start,dur,{gain=.05,freq=3000,q=1,type='bandpass'}={}){const c=this.ok();if(!c)return;const t=c.currentTime+start;const n=Math.max(1,c.sampleRate*dur|0),b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n)**2;const s=c.createBufferSource();s.buffer=b;const f=c.createBiquadFilter();f.type=type;f.frequency.value=freq;f.Q.value=q;const g=c.createGain();g.gain.value=gain;s.connect(f);f.connect(g);g.connect(this.master);s.start(t);}
+ startup(){this.pad([261.63,392,493.88,659.25],0,3.8,{gain:.045,attack:.9});[[392,.05],[523.25,.22],[659.25,.38],[783.99,.56],[1174.66,.8],[987.77,1.02]].forEach(([f,s],i)=>this.mallet(f,s,{gain:.15-i*.012,dur:2.3,rev:.9}));}
+ shutdown(){this.pad([261.63,392,493.88],0,2.4,{gain:.04,attack:.3});[[783.99,0],[659.25,.18],[523.25,.36],[392,.6]].forEach(([f,s])=>this.mallet(f,s,{gain:.12,dur:1.6,rev:.9}));}
+ click(){this.noise(0,.016,{gain:.03,freq:4200,q:.8});}
+ pop(){this.mallet(1046.5,0,{gain:.06,dur:.25,rev:.25,bright:.6});}
+ notify(){this.mallet(1174.66,0,{gain:.12,dur:1.2,rev:.7});this.mallet(1567.98,.11,{gain:.11,dur:1.5,rev:.7});}
+ error(){this.mallet(392,0,{gain:.16,dur:.9,rev:.5,bright:.7});this.mallet(311.13,.12,{gain:.16,dur:1.1,rev:.5,bright:.7});}
+ mine(){this.noise(0,.6,{gain:.35,freq:300,q:.5,type:'lowpass'});this.tone(110,0,.5,{gain:.25,slide:40});}
+ win(){[523.25,659.25,783.99,1046.5,1318.5].forEach((f,i)=>this.mallet(f,i*.09,{gain:.12,dur:1.2,rev:.7}));}
+ install(){this.mallet(783.99,0,{gain:.1,dur:.8});this.mallet(1046.5,.1,{gain:.1,dur:.8});this.mallet(1567.98,.2,{gain:.1,dur:1.4});}
 }
+
 const Sound=new SoundEngine();
 
 /* ============================ VIRTUAL FILE SYSTEM ============================ */
+const HELLO_TXT="Привет! Добро пожаловать в Windows11WEB 2.0 👋\n=================================================\n\nНОВОЕ\n  • Microsoft Store — устанавливай браузеры, редакторы, IDE, Paint 3D, Blender,\n    FL Studio и игры (Весёлая ферма, Pony Knight, Нарды, 2048, Змейка...)\n  • Microsoft Edge — встроенный браузер с настоящим поиском\n  • Паук — классический пасьянс\n  • Темы: Тёмная, Светлая, Киберпанк, Программист (Параметры → Персонализация)\n\nКОМАНДЫ ТЕРМИНАЛА (Пуск → Терминал)\n --- файлы ---\n  help                  список всех команд\n  dir / ls, cd, pwd     навигация по папкам\n  cat <файл>            показать файл\n  echo текст > a.txt    записать в файл (>> — дописать)\n  mkdir, touch, rm, cp, mv, ren\n --- система ---\n  neofetch / winfetch   информация о системе\n  tasklist              процессы,  taskkill <имя>\n  date, calc, matrix, color 0a, cls\n  start <программа>     запустить (start chrome, start code)\n  theme <dark|light|cyberpunk|hacker>  сменить тему\n  shutdown /s | /r      выключить | перезагрузить\n  bsod                  синий экран 😈\n --- приложения (как winget) ---\n  winget search <слово> найти в магазине\n  winget install <id>   установить   (winget install chrome)\n  winget uninstall <id> удалить\n  winget list           установленные\n --- ТВОЙ НАСТОЯЩИЙ ПК ---\n  sysinfo               реальные данные: процессор, память, экран, ОС\n  battery               реальный заряд батареи\n  netinfo / ip          реальная сеть и внешний IP\n  mount                 подключить НАСТОЯЩУЮ папку твоего ПК как диск R:\n  r: / rls / rcd / rcat работа с файлами настоящей папки\n  rimport <файл>        скопировать файл из R: в виртуальную ОС\n  rexport <файл>        сохранить файл из ОС в настоящую папку\n  upload / download <файл>  загрузить/скачать файл\n  open <url>            открыть сайт в настоящем браузере\n  search <запрос>       искать в интернете\n  clip <текст> / paste  буфер обмена\n  notify <текст>        настоящее системное уведомление\n  say <текст>           произнести вслух\n  fullscreen            полноэкранный режим\n  geo                   где я (геолокация)\n\nГОРЯЧИЕ КЛАВИШИ\n  Win / Ctrl+Esc   Пуск            Alt+Tab / Alt+`   окна\n  Win+D            рабочий стол    Win+E             Проводник\n  Win+R            Выполнить       Win+Ctrl+Shift+B  BSOD\n\n(Из соображений безопасности браузер не даёт сайтам управлять компьютером\nнапрямую: удалять файлы, запускать программы и т.п. Всё «реальное» выше —\nэто то, что браузер разрешает, и только с твоего разрешения.)\n";
 class FileSystem{
  constructor(){this.root=LS.get('fs',null);if(!this.root||!this.root.children){this.root=this.defaultTree();this.save();}}
  defaultTree(){const now=Date.now();const F=(content)=>({type:'file',content,mtime:now});const D=(children={})=>({type:'dir',children,mtime:now});
-  return D({'Users':D({'User':D({'Desktop':D({'Привет.txt':F('Привет! Это файл на рабочем столе.\nДважды щёлкните, чтобы открыть его в Блокноте.')}),
+  return D({'Users':D({'User':D({'Desktop':D({'Привет.txt':F(HELLO_TXT)}),
    'Documents':D({'readme.txt':F('Windows 11 — Web Edition\n===========================\n\nГорячие клавиши:\n  Win / Ctrl+Esc        — меню «Пуск»\n  Alt+Tab / Alt+`       — переключение окон\n  Win+D / Alt+Shift+D   — показать рабочий стол\n  Win+E / Alt+Shift+E   — Проводник\n  Win+R / Alt+Shift+R   — «Выполнить»\n  Win+Ctrl+Shift+B / Alt+Shift+B — BSOD\n\nВсе файлы сохраняются в localStorage браузера.\n'),
      'Список дел.txt':F('☐ Купить молоко\n☐ Доиграть в Сапёра на Эксперте\n☑ Установить Windows 11\n'),'Проекты':D({})}),
    'Downloads':D({'setup_log.txt':F('[OK] Установка компонентов завершена\n[OK] Драйверы обновлены\n')}),

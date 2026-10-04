@@ -1,10 +1,7 @@
 #!/bin/bash
-# Собирает index.html из частей в src/
-cd "$(dirname "$0")/src"
-python3 - <<'PY'
-h=open('head.html',encoding='utf-8').read();x=open('extra.css',encoding='utf-8').read()
-i=h.rfind('</style>');h=h[:i]+x+h[i:]
-parts=[h]+[open(f,encoding='utf-8').read() for f in ['core.js','shell.js','apps1.js','apps2.js','apps3.js','tail.html']]
-open('../index.html','w',encoding='utf-8').write(''.join(parts))
-print('index.html собран')
-PY
+# Собирает один самодостаточный index.html из частей в src/
+set -e
+cd "$(dirname "$0")"
+P=src
+cat $P/head.html $P/core.js $P/shell.js $P/apps1.js $P/apps2.js $P/apps3.js $P/apps4.js $P/apps5.js $P/apps6.js $P/apps7.js $P/apps8.js $P/apps9.js $P/tail.html > index.html
+echo "index.html собран ($(wc -c < index.html) байт)"

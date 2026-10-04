@@ -9,6 +9,7 @@ function bloomSVG(dark){
  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="bg" cx=".55" cy=".55" r=".8"><stop offset="0" stop-color="${bgA}"/><stop offset="1" stop-color="${bgB}"/></radialGradient>${defs}<filter id="bl"><feGaussianBlur stdDeviation="6"/></filter><filter id="glow"><feGaussianBlur stdDeviation="60"/></filter></defs><rect width="1920" height="1080" fill="url(#bg)"/><circle cx="1060" cy="600" r="260" fill="${dark?'#1f6fff':'#5aa8ff'}" opacity=".45" filter="url(#glow)"/><g transform="translate(1060 640)" filter="url(#bl)" opacity=".55">${petals}</g><g transform="translate(1060 640)" style="mix-blend-mode:screen">${petals}</g></svg>`;}
 const svgUrl=s=>`url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(s)}")`;
 const WALLS={
+ 'matrix':{name:'Матрица',css:()=>'radial-gradient(ellipse at 50% 45%,rgba(0,255,102,.22) 0,transparent 55%),repeating-linear-gradient(0deg,rgba(0,255,102,.06) 0 1px,transparent 1px 4px),linear-gradient(#000,#001a08)'},
  'bloom-dark':{name:'Bloom Dark',css:()=>svgUrl(bloomSVG(true))},
  'bloom-light':{name:'Bloom Light',css:()=>svgUrl(bloomSVG(false))},
  'cyberpunk':{name:'Cyberpunk',css:()=>svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#12002b"/><stop offset=".55" stop-color="#6a0b7a"/><stop offset="1" stop-color="#ff2e88"/></linearGradient><linearGradient id="sun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe259"/><stop offset="1" stop-color="#ff2e88"/></linearGradient></defs><rect width="1920" height="1080" fill="url(#s)"/><circle cx="960" cy="560" r="230" fill="url(#sun)"/>${[0,1,2,3,4,5].map(i=>`<rect x="700" y="${600+i*28}" width="520" height="${6+i*2}" fill="#6a0b7a"/>`).join('')}<rect y="700" width="1920" height="380" fill="#0d0221"/>${Array.from({length:25},(_,i)=>`<line x1="960" y1="700" x2="${-1500+i*205}" y2="1080" stroke="#ff2e88" stroke-width="2" opacity=".7"/>`).join('')}${[0,1,2,3,4,5,6,7].map(i=>`<line x1="0" x2="1920" y1="${700+Math.pow(i,1.9)*7.5}" y2="${700+Math.pow(i,1.9)*7.5}" stroke="#00f0ff" stroke-width="2" opacity=".6"/>`).join('')}<path d="M0 700L120 610 210 650 330 560 420 640 560 590 640 700z M1280 700l90-70 110 40 120-110 90 80 130-40 100 100z" fill="#2b0547"/></svg>`)},
@@ -27,13 +28,13 @@ const Shell={
   this.tick();setInterval(()=>this.tick(),1000);this.initGlobal();
  },
  /* ---------- theme ---------- */
- applyTheme(){const d=document.documentElement;d.dataset.theme=Settings.get('theme');const a=Settings.get('accent');d.style.setProperty('--accent',a);d.style.setProperty('--accent-2',this.lighten(a,.45));
+ applyTheme(){const d=document.documentElement;const _t=Settings.get('theme');d.dataset.theme=_t==='light'?'light':'dark';d.dataset.skin=_t;Bus.emit('skin',_t);const a=Settings.get('accent');d.style.setProperty('--accent',a);d.style.setProperty('--accent-2',this.lighten(a,.45));
   document.body.classList.toggle('no-transparency',!Settings.get('transparency'));},
  lighten(hex,t){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;r=Math.round(r+(255-r)*t);g=Math.round(g+(255-g)*t);b=Math.round(b+(255-b)*t);return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);},
  wallCss(k){return (WALLS[k]||WALLS['bloom-dark']).css();},
  applyWallpaper(){const c=this.wallCss(Settings.get('wallpaper'));$('#wall').style.backgroundImage=c;$('#lock').style.backgroundImage=c;},
  applyDisplay(){$('#dim').style.opacity=(1-Settings.get('brightness')/100)*.85;$('#night').style.opacity=Settings.get('nightLight')?.28:0;},
- setTheme(t){Settings.set('theme',t);if(t==='light'&&Settings.get('wallpaper')==='bloom-dark')Settings.set('wallpaper','bloom-light');if(t==='dark'&&Settings.get('wallpaper')==='bloom-light')Settings.set('wallpaper','bloom-dark');this.buildQuick();},
+ setTheme(t){const _w=Settings.get('wallpaper');Settings.set('theme',t);if(t==='cyberpunk')Settings.set('wallpaper','cyberpunk');if(t==='hacker')Settings.set('wallpaper','matrix');if((t==='dark'||t==='light')&&['matrix','cyberpunk'].includes(_w))Settings.set('wallpaper',t==='light'?'bloom-light':'bloom-dark');if(t==='light'&&Settings.get('wallpaper')==='bloom-dark')Settings.set('wallpaper','bloom-light');if(t==='dark'&&Settings.get('wallpaper')==='bloom-light')Settings.set('wallpaper','bloom-dark');this.buildQuick();},
  /* ---------- clock ---------- */
  tick(){const d=new Date();$('#tbTime').textContent=pad(d.getHours())+':'+pad(d.getMinutes());$('#tbDate').textContent=pad(d.getDate())+'.'+pad(d.getMonth()+1)+'.'+d.getFullYear();
   const lt=$('#lock .ltime');if(lt)lt.innerHTML=`<b>${pad(d.getHours())}:${pad(d.getMinutes())}</b><span>${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS_G[d.getMonth()]}</span>`;Bus.emit('tick',d);},
@@ -89,11 +90,11 @@ const Shell={
  /* ---------- quick settings ---------- */
  buildQuick(){const q=$('#quick');const S=k=>Settings.get(k);
   const tiles=[['wifi','Wi-Fi',I.wifi],['bt','Bluetooth',I.bt],['airplane','Режим «в самолёте»',I.plane],['nightLight','Ночной свет',I.moon],['dark','Тёмная тема',I.theme],['sounds','Звуки',I.vol]];
-  q.innerHTML=`<div class="qgrid">${tiles.map(([k,l,ic])=>`<div class="qt${(k==='dark'?S('theme')==='dark':S(k))?' on':''}" data-k="${k}"><button><span class="ico">${ic}</span></button><span>${l}</span></div>`).join('')}</div>
+  q.innerHTML=`<div class="qgrid">${tiles.map(([k,l,ic])=>`<div class="qt${(k==='dark'?S('theme')!=='light':S(k))?' on':''}" data-k="${k}"><button><span class="ico">${ic}</span></button><span>${l}</span></div>`).join('')}</div>
   <div class="qslider"><span class="ico">${I.sun}</span><input type="range" min="20" max="100" id="qBright" value="${S('brightness')}"><span id="qBrightV">${S('brightness')}</span></div>
   <div class="qslider"><span class="ico" id="qVolI">${S('volume')==0?I.mute:I.vol}</span><input type="range" min="0" max="100" id="qVolR" value="${S('volume')}"><span id="qVolV">${S('volume')}</span></div>
   <div class="qfoot"><span style="display:flex;gap:8px;align-items:center"><span class="ico">${I.battery}</span> ${Shell.battery}%</span><button class="tbtn" id="qSet" title="Все параметры"><span class="ico">${I.gear}</span></button></div>`;
-  $$('.qt',q).forEach(t=>t.querySelector('button').onclick=()=>{Sound.click();const k=t.dataset.k;if(k==='dark'){this.setTheme(S('theme')==='dark'?'light':'dark');return;}Settings.set(k,!S(k));t.classList.toggle('on',S(k));
+  $$('.qt',q).forEach(t=>t.querySelector('button').onclick=()=>{Sound.click();const k=t.dataset.k;if(k==='dark'){this.setTheme(S('theme')!=='light'?'light':'dark');return;}Settings.set(k,!S(k));t.classList.toggle('on',S(k));
    if(k==='wifi'||k==='airplane')this.notify({title:k==='wifi'?'Wi-Fi':'Режим «в самолёте»',body:S(k)?'Включено':'Выключено',icon:AI.pc(),silent:true});});
   $('#qBright').oninput=e=>{Settings.set('brightness',+e.target.value);$('#qBrightV').textContent=e.target.value;};
   $('#qVolR').oninput=e=>{Settings.set('volume',+e.target.value);$('#qVolV').textContent=e.target.value;$('#qVolI').innerHTML=+e.target.value?I.vol:I.mute;};$('#qVolR').onchange=()=>Sound.click();
@@ -136,7 +137,7 @@ const Shell={
   const n=new Date();$('#wgTime').textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());this.drawWClock();this.updateMeters();},
  updateMeters(){['cpu','ram','disk','net'].forEach(k=>{const v=Monitor[k];const m=$('#wm_'+k);if(!m)return;m.textContent=k==='net'?(v*0.12).toFixed(1)+' Мбит/с':Math.round(v)+'%';$('#wb_'+k).style.width=(k==='net'?v*3:v)+'%';});},
  drawWClock(){const c=$('#wgClock');if(!c)return;const x=c.getContext('2d'),d=new Date(),R=140;x.clearRect(0,0,300,300);x.save();x.translate(150,150);
-  const dark=Settings.get('theme')==='dark';x.fillStyle=dark?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)';x.beginPath();x.arc(0,0,R,0,7);x.fill();x.strokeStyle=dark?'#fff':'#222';
+  const dark=Settings.get('theme')!=='light';x.fillStyle=dark?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)';x.beginPath();x.arc(0,0,R,0,7);x.fill();x.strokeStyle=dark?'#fff':'#222';
   for(let i=0;i<60;i++){x.save();x.rotate(i*Math.PI/30);x.lineWidth=i%5?2:5;x.globalAlpha=i%5?.35:.9;x.beginPath();x.moveTo(0,-R+10);x.lineTo(0,-R+(i%5?18:28));x.stroke();x.restore();}
   const hand=(a,l,w,c)=>{x.save();x.rotate(a);x.strokeStyle=c;x.lineWidth=w;x.lineCap='round';x.beginPath();x.moveTo(0,16);x.lineTo(0,-l);x.stroke();x.restore();};
   const s=d.getSeconds()+d.getMilliseconds()/1000,m=d.getMinutes()+s/60,h=d.getHours()%12+m/60;hand(h*Math.PI/6,70,9,dark?'#fff':'#222');hand(m*Math.PI/30,105,6,dark?'#fff':'#222');hand(d.getSeconds()*Math.PI/30,115,3,getComputedStyle(document.documentElement).getPropertyValue('--accent-use').trim()||'#4cc2ff');
@@ -163,8 +164,7 @@ const Shell={
   return this.dialog({title,width:520,icon:AI.explorer(),html:`<div style="max-height:300px;overflow:auto;display:flex;flex-direction:column;gap:2px" class="pick">${files.map(f=>`<div class="rec" data-p="${esc(f.path)}" style="border-radius:5px"><span class="ic" style="width:24px;height:24px">${VFS.iconFor(f)}</span><div><b>${esc(f.name)}</b><small>${esc(VFS.dirname(f.path))}</small></div></div>`).join('')||'<p class="muted">Файлов нет</p>'}</div>`,
    buttons:[{label:'Открыть',primary:true,value:b=>$('.rec.sel',b)?.dataset.p||null},{label:'Отмена',value:null}]}).then(r=>r);},
  /* ---------- desktop ---------- */
- deskItems(){const sys=[{id:'pc',name:'Этот компьютер',icon:AI.pc(),open:()=>Apps.launch('explorer',{path:'pc'})},{id:'bin',name:'Корзина',icon:AI.recycle((VFS.list('C:\\$Recycle.Bin')||[]).length>0),open:()=>Apps.launch('explorer',{path:'C:\\$Recycle.Bin'})},
-  ...['explorer','terminal','paint','minesweeper','solitaire'].map(a=>({id:'app:'+a,name:Apps.get(a).name,icon:Apps.get(a).icon(),open:()=>Apps.launch(a)}))];
+ deskItems(){const sys=[{id:'bin',name:'Корзина',icon:AI.recycle((VFS.list('C:\\$Recycle.Bin')||[]).length>0),open:()=>Apps.launch('explorer',{path:'C:\\$Recycle.Bin'})},];
   let files=(VFS.list('C:\\Users\\User\\Desktop')||[]).map(f=>({id:'f:'+f.path,name:f.name,icon:VFS.iconFor(f),path:f.path,file:f,open:()=>Apps.openFile(f.path)}));
   const s=Settings.get('sort');files.sort((a,b)=>s==='type'?(VFS.ext(a.name)+a.name).localeCompare(VFS.ext(b.name)+b.name):s==='date'?b.file.mtime-a.file.mtime:a.name.localeCompare(b.name,'ru'));return [...sys,...files];},
  renderDesktop(){const c=$('#icons');if(!c)return;const sz=Settings.get('iconSize');c.className=sz==='medium'?'':sz;const items=this.deskItems();this._desk=items;
