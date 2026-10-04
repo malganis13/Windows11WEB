@@ -1,0 +1,13 @@
+
+/* ============================ BOOT ============================ */
+(function sampleImages(){try{const dir='C:\\Users\\User\\Pictures';if(LS.get('samplesMade',false))return;
+ const mk=(name,fn)=>{const c=document.createElement('canvas');c.width=640;c.height=400;const x=c.getContext('2d');fn(x,c);VFS.write(dir+'\\'+name,c.toDataURL('image/png'));};
+ mk('Закат.png',(x,c)=>{const g=x.createLinearGradient(0,0,0,c.height);g.addColorStop(0,'#1e3c72');g.addColorStop(.55,'#ff7e5f');g.addColorStop(1,'#feb47b');x.fillStyle=g;x.fillRect(0,0,c.width,c.height);x.fillStyle='#ffe29a';x.beginPath();x.arc(320,250,70,0,7);x.fill();x.fillStyle='#2b1b3d';x.beginPath();x.moveTo(0,400);x.lineTo(0,290);x.lineTo(140,220);x.lineTo(260,300);x.lineTo(400,200);x.lineTo(520,280);x.lineTo(640,230);x.lineTo(640,400);x.fill();});
+ mk('Bloom.png',(x,c)=>{x.fillStyle='#0b1a3a';x.fillRect(0,0,c.width,c.height);x.translate(320,210);for(let i=0;i<10;i++){x.rotate(Math.PI/5);const g=x.createLinearGradient(0,0,0,-170);g.addColorStop(0,'rgba(0,120,212,.9)');g.addColorStop(1,'rgba(160,220,255,.5)');x.fillStyle=g;x.beginPath();x.ellipse(0,-85,40,95,0,0,7);x.fill();}});
+ LS.set('samplesMade',true);}catch(e){console.warn(e)}})();
+Monitor.init();
+Shell.init();
+Shell.boot();
+</script>
+</body>
+</html>
