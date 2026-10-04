@@ -51,49 +51,49 @@ const alias=(id,...names)=>{names.forEach(n=>APP_ALIAS[n]=id);CP_APPS.push([name
 
 /* ---------- MICROSOFT STORE ---------- */
 addCSS(`
-.ms{display:flex;flex:1;min-height:0;background:var(--mica)}
-.ms-nav{width:72px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0;border-right:1px solid var(--border)}
-.ms-nav button{width:60px;padding:8px 0;border-radius:6px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--text-2)}
-.ms-nav button:hover{background:var(--hover)}.ms-nav button.on{background:var(--surface-2);color:var(--text)}
-.ms-nav button .ic{width:20px;height:20px}
-.ms-main{flex:1;overflow:auto;padding:0 28px 30px}
-.ms-top{position:sticky;top:0;z-index:2;display:flex;justify-content:center;padding:12px 0;background:linear-gradient(var(--mica-solid) 70%,transparent)}
-.ms-top input{width:min(480px,90%);border-radius:18px}
-.ms-hero{height:200px;border-radius:12px;padding:28px;display:flex;flex-direction:column;justify-content:flex-end;color:#fff;margin-bottom:22px;background:linear-gradient(120deg,#3a0ca3,#7209b7 40%,#f72585);position:relative;overflow:hidden}
-.ms-hero h1{font-size:30px;font-weight:600}.ms-hero p{opacity:.85;margin:4px 0 12px}
-.ms-hero .ic{position:absolute;right:40px;top:30px;width:140px;height:140px;filter:drop-shadow(0 10px 30px rgba(0,0,0,.4))}
-.ms h2{font-size:18px;font-weight:600;margin:18px 0 10px}
-.ms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
-.ms-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:8px;transition:.15s}
-.ms-card:hover{background:var(--hover);transform:translateY(-2px)}
-.ms-card .ic{width:56px;height:56px}.ms-card b{font-weight:600}.ms-card small{color:var(--text-2);font-size:12px}
-.ms-card .row{display:flex;align-items:center;justify-content:space-between;margin-top:auto}
-.ms-stars{color:#ffb900;font-size:12px}
-.ms-det{display:flex;gap:26px;padding:20px 0}.ms-det>.ic{width:120px;height:120px;flex:none}
-.ms-det h1{font-size:28px;font-weight:600}.ms-det .acts{display:flex;gap:8px;margin:14px 0}
-.ms-prog{height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden;width:220px;margin-top:10px}.ms-prog i{display:block;height:100%;width:0;background:var(--accent-use);transition:width .2s}
-.ms-feat{margin:6px 0 0 18px;color:var(--text-2);line-height:1.8}
+.mst{display:flex;flex:1;min-height:0;background:var(--mica)}
+.mst-nav{width:72px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0;border-right:1px solid var(--border)}
+.mst-nav button{width:60px;padding:8px 0;border-radius:6px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--text-2)}
+.mst-nav button:hover{background:var(--hover)}.mst-nav button.on{background:var(--surface-2);color:var(--text)}
+.mst-nav button .ic{width:20px;height:20px}
+.mst-main{flex:1;overflow:auto;padding:0 28px 30px}
+.mst-top{position:sticky;top:0;z-index:2;display:flex;justify-content:center;padding:12px 0;background:linear-gradient(var(--mica-solid) 70%,transparent)}
+.mst-top input{width:min(480px,90%);border-radius:18px}
+.mst-hero{height:200px;border-radius:12px;padding:28px;display:flex;flex-direction:column;justify-content:flex-end;color:#fff;margin-bottom:22px;background:linear-gradient(120deg,#3a0ca3,#7209b7 40%,#f72585);position:relative;overflow:hidden}
+.mst-hero h1{font-size:30px;font-weight:600}.mst-hero p{opacity:.85;margin:4px 0 12px}
+.mst-hero .ic{position:absolute;right:40px;top:30px;width:140px;height:140px;filter:drop-shadow(0 10px 30px rgba(0,0,0,.4))}
+.mst h2{font-size:18px;font-weight:600;margin:18px 0 10px}
+.mst-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.mst-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:8px;transition:.15s}
+.mst-card:hover{background:var(--hover);transform:translateY(-2px)}
+.mst-card .ic{width:56px;height:56px}.mst-card b{font-weight:600}.mst-card small{color:var(--text-2);font-size:12px}
+.mst-card .row{display:flex;align-items:center;justify-content:space-between;margin-top:auto}
+.mst-stars{color:#ffb900;font-size:12px}
+.mst-det{display:flex;gap:26px;padding:20px 0}.mst-det>.ic{width:120px;height:120px;flex:none}
+.mst-det h1{font-size:28px;font-weight:600}.mst-det .acts{display:flex;gap:8px;margin:14px 0}
+.mst-prog{height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden;width:220px;margin-top:10px}.mst-prog i{display:block;height:100%;width:0;background:var(--accent-use);transition:width .2s}
+.mst-feat{margin:6px 0 0 18px;color:var(--text-2);line-height:1.8}
 `);
 Apps.register('store',{name:'Microsoft Store',icon:AI.store,single:true,keywords:'store магазин приложений установить winget',
  onReopen(win,o){o&&o.focus&&win._show&&win._show(o.focus);},
  launch(o){
- const root=el(`<div class="ms"><div class="ms-nav"></div><div class="ms-main"></div></div>`);
+ const root=el(`<div class="mst"><div class="mst-nav"></div><div class="mst-main"></div></div>`);
  const win=WM.create({app:'store',title:'Microsoft Store',icon:AI.store(),width:1060,height:680,content:root,minW:640,minH:420});
- const nav=$('.ms-nav',root),main=$('.ms-main',root);let page='home',q='';const busy={};
+ const nav=$('.mst-nav',root),main=$('.mst-main',root);let page='home',q='';const busy={};
  const NAV=[['home','Главная',I.apps],['browser','Браузеры',I.search],['dev','Разработка',I.term],['creative','Творчество',I.brush],['game','Игры',I.flag],['lib','Библиотека',I.download]];
  nav.innerHTML=NAV.map(([k,l,ic])=>`<button data-k="${k}"><span class="ic">${ic}</span>${l}</button>`).join('');
  nav.onclick=e=>{const b=e.target.closest('button');if(!b)return;Sound.click();page=b.dataset.k;q='';render();};
  const stars=r=>'★'.repeat(Math.round(r))+'☆'.repeat(5-Math.round(r));
  const btn=m=>busy[m.id]!=null?`<button class="btn" disabled>${busy[m.id]}%</button>`:Installed.has(m.id)?`<button class="btn" data-open="${m.id}">Открыть</button>`:`<button class="btn primary" data-inst="${m.id}">${m.price||'Получить'}</button>`;
- const card=m=>{const a=Apps.get(m.id);return `<div class="ms-card" data-det="${m.id}"><span class="ic">${a.icon()}</span><b>${esc(a.name)}</b><small>${CAT_NAMES[m.cat]} · ${esc(m.dev)}</small><span class="ms-stars">${stars(m.rating)} <span class="muted">${m.rating.toFixed(1)}</span></span><div class="row"><small>${m.size}</small>${btn(m)}</div></div>`;};
+ const card=m=>{const a=Apps.get(m.id);return `<div class="mst-card" data-det="${m.id}"><span class="ic">${a.icon()}</span><b>${esc(a.name)}</b><small>${CAT_NAMES[m.cat]} · ${esc(m.dev)}</small><span class="mst-stars">${stars(m.rating)} <span class="muted">${m.rating.toFixed(1)}</span></span><div class="row"><small>${m.size}</small>${btn(m)}</div></div>`;};
  function render(){$$('button',nav).forEach(b=>b.classList.toggle('on',b.dataset.k===page));
-  const top=`<div class="ms-top"><input class="inp ms-q" placeholder="Поиск приложений, игр и не только" value="${esc(q)}"></div>`;let h='';
-  if(q){const L=CATALOG.filter(m=>(Apps.get(m.id).name+' '+m.desc+' '+m.dev+' '+m.id).toLowerCase().includes(q.toLowerCase()));h=`<h2>Результаты: «${esc(q)}»</h2>`+(L.length?`<div class="ms-grid">${L.map(card).join('')}</div>`:'<p class="muted">Ничего не найдено.</p>');}
-  else if(page==='home'){const hero=CATALOG.find(m=>m.id==='ponyknight');h=`<div class="ms-hero" data-det="ponyknight"><span class="ic">${AI.pony()}</span><small>ЭКСКЛЮЗИВ</small><h1>Pony Knight</h1><p>Метроидвания о храброй пони-рыцаре. Боссы, прокачка, секреты.</p><div>${btn(hero)}</div></div>`+Object.keys(CAT_NAMES).map(c=>{const L=CATALOG.filter(m=>m.cat===c);return L.length?`<h2>${CAT_NAMES[c]}</h2><div class="ms-grid">${L.map(card).join('')}</div>`:''}).join('');}
-  else if(page==='lib'){const L=CATALOG.filter(m=>Installed.has(m.id));h=`<h2>Библиотека</h2>`+(L.length?`<div class="ms-grid">${L.map(card).join('')}</div>`:'<p class="muted">Вы ещё ничего не установили.</p>');}
-  else if(page.startsWith('det:')){const m=CATALOG.find(x=>x.id===page.slice(4)),a=Apps.get(m.id);h=`<button class="btn" data-back style="margin-top:6px"><span class="ico">${I.back}</span>Назад</button><div class="ms-det"><span class="ic">${a.icon()}</span><div><h1>${esc(a.name)}</h1><div class="muted">${esc(m.dev)} · ${CAT_NAMES[m.cat]}</div><div class="ms-stars" style="margin-top:6px">${stars(m.rating)} ${m.rating.toFixed(1)} · <span class="muted">${m.size}</span></div><div class="acts">${btn(m)}${Installed.has(m.id)?`<button class="btn" data-rm="${m.id}">Удалить</button>`:''}</div>${busy[m.id]!=null?`<div class="ms-prog"><i style="width:${busy[m.id]}%"></i></div>`:''}<p style="max-width:640px;line-height:1.6;margin-top:6px">${esc(m.desc)}</p>${m.feat?`<ul class="ms-feat">${m.feat.map(f=>`<li>${esc(f)}</li>`).join('')}</ul>`:''}</div></div>`;}
-  else{const L=CATALOG.filter(m=>m.cat===page);h=`<h2>${CAT_NAMES[page]}</h2><div class="ms-grid">${L.map(card).join('')}</div>`;}
-  const st=main.scrollTop;main.innerHTML=top+h;main.scrollTop=st;const inp=$('.ms-q',main);inp.oninput=()=>{q=inp.value;const pos=inp.selectionStart;render();const i2=$('.ms-q',main);i2.focus();i2.setSelectionRange(pos,pos);};}
+  const top=`<div class="mst-top"><input class="inp mst-q" placeholder="Поиск приложений, игр и не только" value="${esc(q)}"></div>`;let h='';
+  if(q){const L=CATALOG.filter(m=>(Apps.get(m.id).name+' '+m.desc+' '+m.dev+' '+m.id).toLowerCase().includes(q.toLowerCase()));h=`<h2>Результаты: «${esc(q)}»</h2>`+(L.length?`<div class="mst-grid">${L.map(card).join('')}</div>`:'<p class="muted">Ничего не найдено.</p>');}
+  else if(page==='home'){const hero=CATALOG.find(m=>m.id==='ponyknight');h=`<div class="mst-hero" data-det="ponyknight"><span class="ic">${AI.pony()}</span><small>ЭКСКЛЮЗИВ</small><h1>Pony Knight</h1><p>Метроидвания о храброй пони-рыцаре. Боссы, прокачка, секреты.</p><div>${btn(hero)}</div></div>`+Object.keys(CAT_NAMES).map(c=>{const L=CATALOG.filter(m=>m.cat===c);return L.length?`<h2>${CAT_NAMES[c]}</h2><div class="mst-grid">${L.map(card).join('')}</div>`:''}).join('');}
+  else if(page==='lib'){const L=CATALOG.filter(m=>Installed.has(m.id));h=`<h2>Библиотека</h2>`+(L.length?`<div class="mst-grid">${L.map(card).join('')}</div>`:'<p class="muted">Вы ещё ничего не установили.</p>');}
+  else if(page.startsWith('det:')){const m=CATALOG.find(x=>x.id===page.slice(4)),a=Apps.get(m.id);h=`<button class="btn" data-back style="margin-top:6px"><span class="ico">${I.back}</span>Назад</button><div class="mst-det"><span class="ic">${a.icon()}</span><div><h1>${esc(a.name)}</h1><div class="muted">${esc(m.dev)} · ${CAT_NAMES[m.cat]}</div><div class="mst-stars" style="margin-top:6px">${stars(m.rating)} ${m.rating.toFixed(1)} · <span class="muted">${m.size}</span></div><div class="acts">${btn(m)}${Installed.has(m.id)?`<button class="btn" data-rm="${m.id}">Удалить</button>`:''}</div>${busy[m.id]!=null?`<div class="mst-prog"><i style="width:${busy[m.id]}%"></i></div>`:''}<p style="max-width:640px;line-height:1.6;margin-top:6px">${esc(m.desc)}</p>${m.feat?`<ul class="mst-feat">${m.feat.map(f=>`<li>${esc(f)}</li>`).join('')}</ul>`:''}</div></div>`;}
+  else{const L=CATALOG.filter(m=>m.cat===page);h=`<h2>${CAT_NAMES[page]}</h2><div class="mst-grid">${L.map(card).join('')}</div>`;}
+  const st=main.scrollTop;main.innerHTML=top+h;main.scrollTop=st;const inp=$('.mst-q',main);inp.oninput=()=>{q=inp.value;const pos=inp.selectionStart;render();const i2=$('.mst-q',main);i2.focus();i2.setSelectionRange(pos,pos);};}
  function install(id){if(busy[id]!=null)return;busy[id]=0;render();const t=setInterval(()=>{busy[id]=Math.min(100,busy[id]+8+Math.random()*14|0);if(!win.el.isConnected){clearInterval(t);busy[id]=100;}
    if(busy[id]>=100){clearInterval(t);delete busy[id];STORE_INSTALL(id);}if(win.el.isConnected)render();},180);}
  main.addEventListener('click',e=>{const i=e.target.closest('[data-inst]'),op=e.target.closest('[data-open]'),rm=e.target.closest('[data-rm]'),d=e.target.closest('[data-det]');

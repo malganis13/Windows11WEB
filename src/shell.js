@@ -127,7 +127,7 @@ const Shell={
   return{t,c:c[0],icon:c[1],f:Array.from({length:5},(_,i)=>{const cc=conds[(seed+i*3+1)%4];return{d:['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][(d.getDay()+i+1)%7],hi:base+((seed+i*5)%6),lo:base-3-((seed+i)%4),icon:cc[1]}})};},
  renderWidgets(){const w=$('#widgets'),W=this.weather,d=new Date();
   w.innerHTML=`<div class="wg-top"><div><div class="wg-time" id="wgTime"></div><div class="muted">${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS_G[d.getMonth()]}</div></div><button class="btn" id="wgClose">${I.close.replace('<svg','<svg width="10"')} Закрыть</button></div>
-  <div class="wgrid"><div class="wcard weather"><h4>Москва · Погода</h4><div style="display:flex;align-items:center;gap:14px"><span class="ic" style="width:58px;height:58px">${W.icon()}</span><div><div class="big">${W.t}°</div><div>${W.c}</div></div></div>
+  <div class="wgrid"><div class="wcard weather"><h4>${esc(W.city||'Москва')} · Погода${W.real?' 🌐':''}</h4><div style="display:flex;align-items:center;gap:14px"><span class="ic" style="width:58px;height:58px">${W.icon()}</span><div><div class="big">${W.t}°</div><div>${W.c}</div>${W.real?`<div class="muted" style="font-size:12px">Ощущается ${W.feels}° · 💧${W.hum}% · 💨${W.wind} м/с</div>`:''}</div></div>
    <div class="wforecast">${W.f.map(f=>`<div>${f.d}<span class="ic">${f.icon()}</span>${f.hi}° <span style="opacity:.7">${f.lo}°</span></div>`).join('')}</div></div>
    <div class="wcard wclock"><canvas id="wgClock" width="300" height="300" style="width:150px;height:150px"></canvas></div>
    <div class="wcard"><h4><span class="ico">${I.pencil}</span>Быстрые заметки</h4><textarea id="wgNotes" placeholder="Запишите что-нибудь…">${esc(LS.get('notes',''))}</textarea></div>
